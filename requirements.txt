@@ -1,0 +1,4 @@
+pygame>=2.0.0
+pyrebase4>=0.0.10
+bcrypt>=4.0.0
+python-dotenv>=1.0.0

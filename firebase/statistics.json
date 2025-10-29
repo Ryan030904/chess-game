@@ -1,0 +1,26 @@
+{
+  "vs_ai_easy": {
+    "total": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0
+  },
+  "vs_ai_medium": {
+    "total": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0
+  },
+  "vs_ai_hard": {
+    "total": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0
+  },
+  "two_players": {
+    "total": 0,
+    "white_wins": 0,
+    "black_wins": 0,
+    "draws": 0
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && (auth.uid == $uid || !data.exists())",
+        ".validate": "newData.hasChildren(['email', 'username', 'scores'])",
+        "email": {
+          ".validate": "newData.isString() && newData.val().matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/)"
+        },
+        "username": {
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 30"
+        },
+        "scores": {
+          ".validate": "newData.hasChildren(['easy', 'medium', 'hard'])",
+          "easy": {
+            ".validate": "newData.hasChildren(['wins', 'losses', 'draws', 'total', 'winRate', 'score'])",
+            "wins": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "losses": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "draws": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "total": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "winRate": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "score": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            }
+          },
+          "medium": {
+            ".validate": "newData.hasChildren(['wins', 'losses', 'draws', 'total', 'winRate', 'score'])",
+            "wins": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "losses": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "draws": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "total": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "winRate": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "score": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            }
+          },
+          "hard": {
+            ".validate": "newData.hasChildren(['wins', 'losses', 'draws', 'total', 'winRate', 'score'])",
+            "wins": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "losses": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "draws": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "total": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "winRate": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "score": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            }
+          }
+        }
+      }
+    }
+  }
+}
