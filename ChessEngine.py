@@ -46,6 +46,18 @@ class GameState:
         """Phát âm thanh khi click button"""
         if self.click_sound:
             self.click_sound.play()
+    
+    def playMoveSoundWithVolume(self, volume=1.0):
+        """Phát âm thanh di chuyển với âm lượng tùy chỉnh"""
+        if self.move_sound:
+            self.move_sound.set_volume(volume)
+            self.move_sound.play()
+    
+    def playCaptureSoundWithVolume(self, volume=1.0):
+        """Phát âm thanh ăn quân với âm lượng tùy chỉnh"""
+        if self.capture_sound:
+            self.capture_sound.set_volume(volume)
+            self.capture_sound.play()
 
     def undoMove(self):
         """Hoàn tác nước đi cuối"""

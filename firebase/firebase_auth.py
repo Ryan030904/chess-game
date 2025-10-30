@@ -1,5 +1,5 @@
 # Module xử lý Authentication với Firebase
-from firebase_config import auth, db
+from .firebase_config import auth, db
 import json
 import bcrypt
 
@@ -93,6 +93,14 @@ def register_user(email, password, username):
             'password_hash': hash_password(password),  # Lưu mật khẩu hash
             'created_at': str(__import__('datetime').datetime.now()),
             'scores': {
+                'very_easy': {
+                    'wins': 0,
+                    'losses': 0,
+                    'draws': 0,
+                    'total': 0,
+                    'winRate': 0.0,
+                    'score': 0
+                },
                 'easy': {
                     'wins': 0,
                     'losses': 0,
@@ -271,19 +279,19 @@ def update_user_scores(mode, result):
     Cập nhật điểm số của user
     
     Args:
-        mode: 'easy', 'medium', 'hard', 'master', 'player'
+        mode: 'very_easy', 'easy', 'medium', 'hard'
         result: 'win', 'loss', 'draw'
     """
-    global current_user
+    global current_user, current_user_token
     
-    if not current_user:
+    if not current_user or not current_user_token:
         return False
     
     try:
         uid = current_user['uid']
         
-        # Lấy scores hiện tại
-        scores = db.child("users").child(uid).child("scores").child(mode).get().val()
+        # Lấy scores hiện tại với token
+        scores = db.child("users").child(uid).child("scores").child(mode).get(current_user_token).val()
         
         if not scores:
             scores = {
@@ -312,8 +320,8 @@ def update_user_scores(mode, result):
         if scores['total'] > 0:
             scores['winRate'] = (scores['wins'] / scores['total']) * 100
         
-        # Cập nhật vào Firebase
-        db.child("users").child(uid).child("scores").child(mode).update(scores)
+        # Cập nhật vào Firebase với token
+        db.child("users").child(uid).child("scores").child(mode).update(scores, current_user_token)
         
         # Cập nhật current_user
         current_user['scores'][mode] = scores

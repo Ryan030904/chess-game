@@ -5,6 +5,12 @@ import os
 STATS_FILE = 'firebase/statistics.json'
 
 DEFAULT_STATS = {
+    'vs_ai_very_easy': {
+        'total': 0,
+        'wins': 0,
+        'losses': 0,
+        'draws': 0
+    },
     'vs_ai_easy': {
         'total': 0,
         'wins': 0,
@@ -55,13 +61,13 @@ def record_game_result(mode, result, player_color='white'):
     Ghi lại kết quả trận đấu
     
     Args:
-        mode: 'easy', 'medium', 'hard', 'two_players'
+        mode: 'very_easy', 'easy', 'medium', 'hard', 'two_players'
         result: 'win', 'loss', 'draw'
         player_color: 'white' hoặc 'black' (chỉ dùng cho two_players)
     """
     stats = load_statistics()
     
-    if mode in ['easy', 'medium', 'hard']:
+    if mode in ['very_easy', 'easy', 'medium', 'hard']:
         key = f'vs_ai_{mode}'
         if key in stats:
             stats[key]['total'] += 1
@@ -103,7 +109,7 @@ def get_statistics_summary():
     }
     
     # Thống kê vs AI
-    for difficulty in ['easy', 'medium', 'hard']:
+    for difficulty in ['very_easy', 'easy', 'medium', 'hard']:
         key = f'vs_ai_{difficulty}'
         if key in stats:
             mode_stats = stats[key]

@@ -12,6 +12,7 @@ TRANSLATIONS = {
         
         # Menu độ khó AI
         'ai_difficulty_title': 'CHỌN ĐỘ KHÓ',
+        'difficulty_very_easy': 'Rất Dễ',
         'difficulty_easy': 'Dễ',
         'difficulty_medium': 'Trung bình',
         'difficulty_hard': 'Khó',
@@ -31,6 +32,7 @@ TRANSLATIONS = {
         'settings_btn': 'Cài đặt',
         
         # Game Modes
+        'mode_very_easy': 'AI Rất Dễ',
         'mode_easy': 'AI Dễ',
         'mode_medium': 'AI Trung bình', 
         'mode_hard': 'AI Khó',
@@ -53,6 +55,7 @@ TRANSLATIONS = {
         'stats_title': 'BẢNG ĐIỂM',
         'stats_total_games': 'Tổng số trận:',
         'stats_vs_ai': 'Đấu với AI:',
+        'stats_very_easy': 'Rất Dễ:',
         'stats_easy': 'Dễ:',
         'stats_medium': 'TB:',
         'stats_hard': 'Khó:',
@@ -108,6 +111,7 @@ TRANSLATIONS = {
         
         # AI Difficulty Menu
         'ai_difficulty_title': 'CHOOSE DIFFICULTY',
+        'difficulty_very_easy': 'Very Easy',
         'difficulty_easy': 'Easy',
         'difficulty_medium': 'Medium',
         'difficulty_hard': 'Hard',
@@ -127,6 +131,7 @@ TRANSLATIONS = {
         'settings_btn': 'Settings',
         
         # Game Modes
+        'mode_very_easy': 'AI Very Easy',
         'mode_easy': 'AI Easy',
         'mode_medium': 'AI Medium',
         'mode_hard': 'AI Hard', 
@@ -149,6 +154,7 @@ TRANSLATIONS = {
         'stats_title': 'STATISTICS',
         'stats_total_games': 'Total Games:',
         'stats_vs_ai': 'VS AI:',
+        'stats_very_easy': 'Very Easy:',
         'stats_easy': 'Easy:',
         'stats_medium': 'Med:',
         'stats_hard': 'Hard:',

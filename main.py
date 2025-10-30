@@ -25,7 +25,7 @@ SETTINGS_FILE = 'firebase/settings.json'
 game_settings = {
     'sound_enabled': True,
     'language': 'vi',
-    'ai_difficulty': 'medium'  # easy, medium, hard
+    'ai_difficulty': 'medium'  # very_easy, easy, medium, hard
 }
 
 # Tải cài đặt từ file
@@ -204,25 +204,27 @@ def drawAIDifficultyMenu(screen):
     titleFont = get_unicode_font(48, True)
     titleText = get_text('ai_difficulty_title', lang)
     titleX = WIDTH // 2 - titleFont.size(titleText)[0] // 2
-    titleY = 120
+    titleY = 80
     draw_glow_text(screen, titleText, titleFont, titleX, titleY, p.Color('black'), p.Color(200, 200, 255), 4)
     
-    # 3 nút độ khó
-    easyButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 90, 200, 50)
-    mediumButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 20, 200, 50)
-    hardButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 50, 200, 50)
+    # 4 nút độ khó
+    veryEasyButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 90, 200, 45)
+    easyButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 30, 200, 45)
+    mediumButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 30, 200, 45)
+    hardButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 90, 200, 45)
     
+    drawButtonUnicode(screen, get_text('difficulty_very_easy', lang), veryEasyButtonRect)
     drawButtonUnicode(screen, get_text('difficulty_easy', lang), easyButtonRect)
     drawButtonUnicode(screen, get_text('difficulty_medium', lang), mediumButtonRect)
     drawButtonUnicode(screen, get_text('difficulty_hard', lang), hardButtonRect)
     
     # Nút quay lại
-    backButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT - 150, 200, 50)
+    backButtonRect = p.Rect(WIDTH // 2 - 100, HEIGHT - 100, 200, 50)
     drawButtonUnicode(screen, get_text('back', lang), backButtonRect)
 
     p.display.flip()
     
-    return easyButtonRect, mediumButtonRect, hardButtonRect, backButtonRect
+    return veryEasyButtonRect, easyButtonRect, mediumButtonRect, hardButtonRect, backButtonRect
 
 # Vẽ màn hình Statistics (Bảng điểm)
 def drawStatistics(screen):
@@ -331,6 +333,7 @@ def drawStatsTable(screen, stats, lang):
     
     # Màu sắc cho từng chế độ
     modeColors = {
+        'very_easy': p.Color(100, 200, 100),
         'easy': p.Color(50, 150, 50),
         'medium': p.Color(200, 150, 50), 
         'hard': p.Color(200, 50, 50),
@@ -339,6 +342,7 @@ def drawStatsTable(screen, stats, lang):
     
     # Tên chế độ với icon
     modeNames = {
+        'very_easy': '🟢 AI Rất Dễ',
         'easy': '🟢 AI Dễ',
         'medium': '🟠 AI Trung bình',
         'hard': '🔴 AI Khó',
@@ -346,7 +350,7 @@ def drawStatsTable(screen, stats, lang):
     }
     
     currentY = dataY
-    modes = ['easy', 'medium', 'hard', 'two_players']
+    modes = ['very_easy', 'easy', 'medium', 'hard', 'two_players']
     
     for mode in modes:
         if mode in stats['modes'] and stats['modes'][mode]['total'] > 0:
@@ -863,7 +867,9 @@ def drawButtonUnicode(screen, text, rect):
 # Lấy tên chế độ chơi theo ngôn ngữ
 def get_game_mode_name(mode, language='vi'):
     """Lấy tên chế độ chơi theo ngôn ngữ"""
-    if mode == 'easy':
+    if mode == 'very_easy':
+        return get_text('mode_very_easy', language)
+    elif mode == 'easy':
         return get_text('mode_easy', language)
     elif mode == 'medium':
         return get_text('mode_medium', language)
@@ -872,7 +878,7 @@ def get_game_mode_name(mode, language='vi'):
     elif mode == 'two_players':
         return get_text('mode_two_players', language)
     else:
-        return get_text('mode_easy', language)  # Mặc định
+        return get_text('mode_medium', language)  # Mặc định
 
 # Vẽ button chế độ chơi
 def drawGameModeButton(screen, mode, rect):
@@ -881,10 +887,11 @@ def drawGameModeButton(screen, mode, rect):
     
     # Màu sắc khác nhau cho từng chế độ
     mode_colors = {
-        'easy': p.Color(50, 150, 50),      # Xanh lá
-        'medium': p.Color(200, 150, 50),   # Cam
-        'hard': p.Color(200, 50, 50),      # Đỏ
-        'two_players': p.Color(100, 50, 150)  # Tím
+        'very_easy': p.Color(100, 200, 100),  # Xanh lá nhạt
+        'easy': p.Color(50, 150, 50),         # Xanh lá
+        'medium': p.Color(200, 150, 50),       # Cam
+        'hard': p.Color(200, 50, 50),          # Đỏ
+        'two_players': p.Color(100, 50, 150)   # Tím
     }
     
     color = mode_colors.get(mode, p.Color(100, 100, 100))
@@ -943,6 +950,16 @@ def main():
     authMessage = ""
     authMessageColor = 'red'
     messageTimer = 0  # Timer để tự động ẩn message
+    
+    # Biến để kiểm soát âm thanh AI
+    aiThinkingStartTime = 0  # Thời gian bắt đầu AI suy nghĩ
+    aiSoundThrottle = {
+        'very_easy': 0,    # Không giới hạn
+        'easy': 0,         # Không giới hạn  
+        'medium': 100,     # 100ms giữa các âm thanh
+        'hard': 200        # 200ms giữa các âm thanh
+    }
+    lastAISoundTime = 0  # Thời gian âm thanh AI cuối cùng
 
     resetButtonRect = p.Rect(10, 10, 100, 30)
     undoButtonRect = p.Rect(120, 10, 100, 30)
@@ -1170,13 +1187,22 @@ def main():
         
         elif showAIDifficulty:
             # Menu chọn độ khó AI
-            easyButtonRect, mediumButtonRect, hardButtonRect, backButtonRect = drawAIDifficultyMenu(screen)
+            veryEasyButtonRect, easyButtonRect, mediumButtonRect, hardButtonRect, backButtonRect = drawAIDifficultyMenu(screen)
             for e in p.event.get():
                 if e.type == p.QUIT:
                     running = False
                 elif e.type == p.MOUSEBUTTONDOWN:
                     location = p.mouse.get_pos()
-                    if easyButtonRect.collidepoint(location):
+                    if veryEasyButtonRect.collidepoint(location):
+                        # Phát âm thanh
+                        if game_settings['sound_enabled']:
+                            gs.playClickSound()
+                        game_settings['ai_difficulty'] = 'very_easy'
+                        save_settings()
+                        showAIDifficulty = False
+                        playerTwo = False  # Chơi với AI
+                        currentGameMode = 'very_easy'
+                    elif easyButtonRect.collidepoint(location):
                         # Phát âm thanh
                         if game_settings['sound_enabled']:
                             gs.playClickSound()
@@ -1321,10 +1347,33 @@ def main():
                         # Phát âm âm thanh
                         if game_settings['sound_enabled']:
                             gs.playClickSound()
-                        # if not gameOver and not humanTurn:
-                        gs.undoMove()
-                        moveMade = True
-                        animate = False
+                        
+                        # Logic hoàn tác nước kép trong chế độ AI
+                        if not gameOver and currentGameMode in ['very_easy', 'easy', 'medium', 'hard']:
+                            # Hoàn tác nước kép: cả AI và người chơi
+                            moves_to_undo = 0
+                            
+                            # Đếm số nước đi cần hoàn tác
+                            if len(gs.moveLog) > 0:
+                                moves_to_undo = 1  # Ít nhất 1 nước
+                                
+                                # Nếu có 2 nước trở lên và đang là lượt người chơi, hoàn tác cả 2
+                                if len(gs.moveLog) >= 2 and humanTurn:
+                                    moves_to_undo = 2
+                            
+                            # Thực hiện hoàn tác
+                            for _ in range(moves_to_undo):
+                                if len(gs.moveLog) > 0:
+                                    gs.undoMove()
+                            
+                            moveMade = True
+                            animate = False
+                        else:
+                            # Chế độ hai người hoặc không có AI - hoàn tác bình thường
+                            if len(gs.moveLog) > 0:
+                                gs.undoMove()
+                                moveMade = True
+                                animate = False
                     
                     elif menuButtonRect.collidepoint(location):
                         # Phát âm thanh
@@ -1407,13 +1456,24 @@ def main():
             if not gameOver and not humanTurn:
                 difficulty = game_settings.get('ai_difficulty', 'medium')
                 
-                # Chọn AI theo độ khó
-                if difficulty == 'easy':
-                    AIMove = SmartMove.findEasyMove(gs, validMoves)
-                elif difficulty == 'hard':
-                    AIMove = SmartMove.findHardMove(gs, validMoves)
-                else:  # medium
-                    AIMove = SmartMove.findMediumMove(gs, validMoves)
+                # Ghi nhận thời gian bắt đầu AI suy nghĩ
+                currentTime = p.time.get_ticks()
+                if aiThinkingStartTime == 0:
+                    aiThinkingStartTime = currentTime
+                
+                # Hiển thị indicator AI đang suy nghĩ cho mức độ khó
+                if currentGameMode in ['hard']:
+                    thinkingTime = currentTime - aiThinkingStartTime
+                    if thinkingTime > 500:  # Sau 0.5 giây mới hiển thị
+                        # Vẽ indicator AI đang suy nghĩ
+                        indicatorRect = p.Rect(WIDTH - 200, HEIGHT - 50, 180, 30)
+                        p.draw.rect(screen, p.Color(50, 50, 50, 150), indicatorRect, border_radius=5)
+                        thinkingFont = get_unicode_font(16, True)
+                        thinkingText = thinkingFont.render("AI đang suy nghĩ...", True, p.Color('white'))
+                        screen.blit(thinkingText, (indicatorRect.x + 10, indicatorRect.y + 5))
+                
+                # Sử dụng hàm mới để lấy AI theo mức độ
+                AIMove = SmartMove.getAIMoveByLevel(gs, validMoves, difficulty)
                 
                 # Fallback nếu không tìm được nước đi
                 if AIMove == None:
@@ -1431,18 +1491,42 @@ def main():
                 gs.makeMove(AIMove, False)
                 moveMade = True
                 animate = True
+                
+                # Reset thời gian AI suy nghĩ
+                aiThinkingStartTime = 0
 
             if moveMade:
                 if animate:
                     animaMove(gs.moveLog[-1], screen, gs.board, clock)  # Hiệu ứng nước đi
                 
-                # Phát âm thanh nếu được bật
+                # Phát âm thanh nếu được bật với throttling và âm lượng cho AI
                 if game_settings['sound_enabled'] and len(gs.moveLog) > 0:
                     lastMove = gs.moveLog[-1]
-                    if lastMove.pieceCaptured != '--':
-                        gs.capture_sound.play()
-                    else:
-                        gs.move_sound.play()
+                    currentTime = p.time.get_ticks()
+                    
+                    # Kiểm tra throttling cho AI
+                    shouldPlaySound = True
+                    if currentGameMode in ['medium', 'hard']:
+                        throttleTime = aiSoundThrottle.get(currentGameMode, 0)
+                        if currentTime - lastAISoundTime < throttleTime:
+                            shouldPlaySound = False
+                    
+                    if shouldPlaySound:
+                        # Điều chỉnh âm lượng theo mức độ AI
+                        volume = 1.0
+                        if currentGameMode == 'medium':
+                            volume = 0.8
+                        elif currentGameMode == 'hard':
+                            volume = 0.6
+                        
+                        if lastMove.pieceCaptured != '--':
+                            gs.playCaptureSoundWithVolume(volume)
+                        else:
+                            gs.playMoveSoundWithVolume(volume)
+                        
+                        # Cập nhật thời gian âm thanh cuối cùng
+                        if currentGameMode in ['medium', 'hard']:
+                            lastAISoundTime = currentTime
                 
                 validMoves = gs.getValidMoves()  # Lấy danh sách mới của các nước đi hợp lệ
                 moveMade = False
@@ -1456,11 +1540,17 @@ def main():
                 if not gameOver:  # Chỉ ghi kết quả lần đầu
                     gameOver = True
                     # Ghi kết quả vào thống kê
-                    if currentGameMode in ['easy', 'medium', 'hard']:
+                    if currentGameMode in ['very_easy', 'easy', 'medium', 'hard']:
                         if gs.whiteToMove:  # Đen thắng (AI thắng)
                             record_game_result(currentGameMode, 'loss')
+                            # Cập nhật Firebase nếu có user đăng nhập
+                            if get_current_user():
+                                update_user_scores(currentGameMode, 'loss')
                         else:  # Trắng thắng (Player thắng)
                             record_game_result(currentGameMode, 'win')
+                            # Cập nhật Firebase nếu có user đăng nhập
+                            if get_current_user():
+                                update_user_scores(currentGameMode, 'win')
                     elif currentGameMode == 'two_players':
                         if gs.whiteToMove:
                             record_game_result('two_players', 'black_wins')
@@ -1477,6 +1567,9 @@ def main():
                     # Ghi kết quả hòa
                     if currentGameMode:
                         record_game_result(currentGameMode, 'draw')
+                        # Cập nhật Firebase nếu có user đăng nhập và chế độ AI
+                        if get_current_user() and currentGameMode in ['very_easy', 'easy', 'medium', 'hard']:
+                            update_user_scores(currentGameMode, 'draw')
                 
                 drawText(screen, get_text('stalemate', lang))  # Hiển thị thông báo hòa
 
